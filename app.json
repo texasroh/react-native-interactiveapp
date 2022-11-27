@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "react-native-interactiveapp",
+    "slug": "react-native-interactiveapp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "react-native-interactiveapp"
+}
