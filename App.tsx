@@ -4,6 +4,7 @@ import {
   Animated,
   Dimensions,
   Easing,
+  PanResponder,
   Pressable,
   TouchableOpacity,
 } from "react-native";
@@ -15,7 +16,7 @@ const Container = styled.View`
   align-items: center;
 `;
 
-const Box = styled.Pressable`
+const Box = styled.View`
   background-color: tomato;
   width: 200px;
   height: 200px;
@@ -28,47 +29,11 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 export default function App() {
   const POSITION = useRef(
     new Animated.ValueXY({
-      x: -SCREEN_WIDTH / 2 + 100,
-      y: -SCREEN_HEIGHT / 2 + 100,
+      x: 0,
+      y: 0,
     })
   ).current;
-  const topLeft = Animated.timing(POSITION, {
-    toValue: {
-      x: -SCREEN_WIDTH / 2 + 100,
-      y: -SCREEN_HEIGHT / 2 + 100,
-    },
-    useNativeDriver: false,
-  });
-  const bottomLeft = Animated.timing(POSITION, {
-    toValue: {
-      x: -SCREEN_WIDTH / 2 + 100,
-      y: SCREEN_HEIGHT / 2 - 100,
-    },
-    useNativeDriver: false,
-  });
-  const topRight = Animated.timing(POSITION, {
-    toValue: {
-      x: SCREEN_WIDTH / 2 - 100,
-      y: -SCREEN_HEIGHT / 2 + 100,
-    },
-    useNativeDriver: false,
-  });
-  const bottomRight = Animated.timing(POSITION, {
-    toValue: {
-      x: SCREEN_WIDTH / 2 - 100,
-      y: SCREEN_HEIGHT / 2 - 100,
-    },
-    useNativeDriver: false,
-  });
-  const moveUp = () => {
-    Animated.loop(
-      Animated.sequence([bottomLeft, bottomRight, topRight, topLeft])
-    ).start();
-  };
-  const rotation = POSITION.y.interpolate({
-    inputRange: [-200, 200],
-    outputRange: ["-360deg", "360deg"],
-  });
+
   const borderRadius = POSITION.y.interpolate({
     inputRange: [-200, 200],
     outputRange: [100, 0],
@@ -77,13 +42,31 @@ export default function App() {
     inputRange: [-200, 200],
     outputRange: ["rgb(255,99,71)", "rgb(71,166,255)"],
   });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, { dx, dy }) => {
+        POSITION.setValue({ x: dx, y: dy });
+      },
+      onPanResponderRelease: () => {
+        Animated.spring(POSITION, {
+          toValue: {
+            x: 0,
+            y: 0,
+          },
+          useNativeDriver: false,
+        }).start();
+      },
+    })
+  ).current;
   return (
     <Container>
       <StatusBar style="light" />
       <AnimatedBox
-        onPress={moveUp}
+        {...panResponder.panHandlers}
         style={{
-          transform: [...POSITION.getTranslateTransform()],
+          transform: POSITION.getTranslateTransform(),
           borderRadius,
           backgroundColor: bgColor,
         }}
