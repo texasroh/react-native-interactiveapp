@@ -50,16 +50,17 @@ export default function App() {
         POSITION.setValue({ x: dx, y: dy });
       },
       onPanResponderRelease: () => {
-        Animated.spring(POSITION, {
-          toValue: {
-            x: 0,
-            y: 0,
-          },
-          useNativeDriver: false,
-        }).start();
+        POSITION.flattenOffset();
+      },
+      onPanResponderGrant: () => {
+        POSITION.setOffset({
+          x: POSITION.x._value,
+          y: POSITION.y._value,
+        });
       },
     })
   ).current;
+  POSITION.addListener(() => console.log(POSITION.x, POSITION.y));
   return (
     <Container>
       <StatusBar style="light" />
